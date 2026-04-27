@@ -1,20 +1,25 @@
 import type { NitroFetchOptions } from 'nitropack'
 
+import type { ApiResponse } from '~/types/examples/common'
+
 type Method = 'get' | 'post' | 'put' | 'delete'
 
 const replaceUrlParams = (url: string, params: Record<string, unknown>) =>
   url.replace(/:(\w+)/g, (_, key) => String(params[key]))
 
-const fetch = (url: string, options: NitroFetchOptions<Method> = {}) => {
+const fetch = async <T> (url: string, options: NitroFetchOptions<Method> = {}) => {
   const newURL = options?.params ? replaceUrlParams(url, options.params) : url
 
   const newOptions: NitroFetchOptions<Method> = {
     ...options,
     params: {}
   }
-  console.log({ url, newURL, options, newOptions })
 
-  return $fetch(newURL, newOptions)
+  const response = await $fetch<ApiResponse<T>>(newURL, newOptions)
+  if (response?.success === false) {
+    throw new Error(response?.message)
+  }
+  return response
 }
 
 export function useHttp () {
@@ -23,32 +28,26 @@ export function useHttp () {
   } = useRuntimeConfig()
 
   return {
-    get: (url: string, options: NitroFetchOptions<'get'> = {}) =>
-      fetch(url, {
+    get: <T> (url: string, options: NitroFetchOptions<'get'> = {}) =>
+      fetch<T>(url, {
         method: 'get',
         ...options,
         baseURL: baseApiUrl
       }),
-    post: (url: string, options: NitroFetchOptions<'post'> = {}) =>
-      fetch(url, {
+    post: <T> (url: string, options: NitroFetchOptions<'post'> = {}) =>
+      fetch<T>(url, {
         method: 'post',
         ...options,
         baseURL: baseApiUrl
       }),
-    postVerifyOtpSimple: (otp: string) =>
-      fetch('examples/verify-otp-simple', {
-        method: 'post',
-        body: { otp },
-        baseURL: baseApiUrl
-      }),
-    put: (url: string, options: NitroFetchOptions<'put'> = {}) =>
-      fetch(url, {
+    put: <T> (url: string, options: NitroFetchOptions<'put'> = {}) =>
+      fetch<T>(url, {
         method: 'put',
         ...options,
         baseURL: baseApiUrl
       }),
-    delete: (url: string, options: NitroFetchOptions<'delete'> = {}) =>
-      fetch(url, {
+    delete: <T> (url: string, options: NitroFetchOptions<'delete'> = {}) =>
+      fetch<T>(url, {
         method: 'delete',
         ...options,
         baseURL: baseApiUrl
