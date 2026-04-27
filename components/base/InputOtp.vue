@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
   errorMessage: 'Invalid OTP',
   successMessage: 'OTP Verified Successfully'
 })
-const emit = defineEmits(['update:modelValue', 'change', 'complete'])
+const emit = defineEmits(['update:modelValue', 'change', 'complete', 'error'])
 
 const { length, modelValue } = toRefs(props)
 const otp = ref<string[]>(
@@ -43,6 +43,11 @@ function handleInput (index: number, event: InputEvent) {
   const value = event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
 
   handleOtp(value, index, inputValue.match(/[^0-9]/g) === null)
+
+  if (event.data?.match(/[^0-9]/g) !== null || inputValue.match(/[^0-9]/g) !== null) {
+    console.log('error')
+    emit('error', 'Invalid OTP')
+  }
 }
 
 function handleOtp (value: string, index: number, goNext: boolean = true) {

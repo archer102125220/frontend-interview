@@ -43,6 +43,7 @@ async function handleVerifyOtp () {
       success-message="驗證成功"
       @complete="isComplete = true"
       @change="handleChange"
+      @error="isError = true"
     />
 
     <button
