@@ -31,7 +31,7 @@ const otp = ref<string[]>(
     )
 )
 const focusedInput = ref<number | null>(0)
-const inputRefs = ref<HTMLInputElement[]>([])
+const inputRefList = ref<HTMLInputElement[]>([])
 
 function focus (index: number) {
   focusedInput.value = index
@@ -116,14 +116,14 @@ watch(
     const safeNewFousedInput = focusedInput.value ?? 0
 
     if (safeNewFousedInput >= length.value) {
-      if (inputRefs.value[safeNewFousedInput - 1] instanceof HTMLInputElement) {
-        inputRefs.value[safeNewFousedInput - 1].blur()
+      if (inputRefList.value[safeNewFousedInput - 1] instanceof HTMLInputElement) {
+        inputRefList.value[safeNewFousedInput - 1].blur()
       }
       focusedInput.value = null
     } else if (
-      inputRefs.value[safeNewFousedInput] instanceof HTMLInputElement
+      inputRefList.value[safeNewFousedInput] instanceof HTMLInputElement
     ) {
-      inputRefs.value[safeNewFousedInput].focus()
+      inputRefList.value[safeNewFousedInput].focus()
     }
   }
 )
@@ -135,7 +135,7 @@ watch(
       <input
         v-for="(_, index) in otp"
         :key="index"
-        ref="inputRefs"
+        ref="inputRefList"
         v-model="otp[index]"
         type="text"
         inputmode="numeric"
