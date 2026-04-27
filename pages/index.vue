@@ -27,8 +27,8 @@ function handleOtpLengthChange (event: InputEvent) {
     newOtpLength = newOtpLength.replace(/[^0-9]/g, '')
   }
 
-  if (Number(newOtpLength) < 1 || Number.isNaN(newOtpLength)) {
-    newOtpLength = 1
+  if (Number(newOtpLength) < 4 || Number.isNaN(newOtpLength)) {
+    newOtpLength = 4
   } else if (Number(newOtpLength) > 8) {
     newOtpLength = 8
   }
