@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useHttpExamples } from '~/composables/useHttpExamples'
 
+const otpLength = ref(6)
 const otp = ref('')
 const disabled = ref(false)
 const isComplete = ref(false)
@@ -9,6 +10,31 @@ const isError = ref(false)
 const isSuccess = ref(false)
 
 const { postVerifyOtpSimple } = useHttpExamples()
+
+function handleOtpLengthChange (event: InputEvent) {
+  otp.value = ''
+  isLoading.value = false
+  isComplete.value = false
+  isError.value = false
+  isSuccess.value = false
+
+  const inputValue = (event.target as HTMLInputElement).value || ''
+  const eventData = event.data || ''
+
+  let newOtpLength: string | number = eventData || inputValue
+
+  if (Number.isNaN(newOtpLength)) {
+    newOtpLength = newOtpLength.replace(/[^0-9]/g, '')
+  }
+
+  if (Number(newOtpLength) < 1 || Number.isNaN(newOtpLength)) {
+    newOtpLength = 1
+  } else if (Number(newOtpLength) > 8) {
+    newOtpLength = 8
+  }
+
+  otpLength.value = Number(newOtpLength)
+}
 
 function handleChange () {
   isError.value = false
@@ -35,8 +61,19 @@ async function handleVerifyOtp () {
 
 <template>
   <div class="flex flex-col items-center justify-center p-6">
+    <div class="mb-4 flex items-center gap-2">
+      <label for="otpLength">OTP 長度:</label>
+      <input
+        v-model="otpLength"
+        type="number"
+        min="1"
+        max="8"
+        class="w-16 rounded-md border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
+        @input="handleOtpLengthChange"
+      >
+    </div>
     <button
-      class="mb-2 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+      class="mb-4 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
       :class="{ 'bg-indigo-600': !disabled, 'bg-gray-500': disabled }"
       @click="disabled = !disabled"
     >
@@ -45,7 +82,7 @@ async function handleVerifyOtp () {
 
     <BaseInputOtp
       v-model="otp"
-      :length="6"
+      :length="otpLength"
       :error="isError"
       :success="isSuccess"
       :disabled="disabled"
