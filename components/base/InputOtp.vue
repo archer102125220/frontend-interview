@@ -39,13 +39,14 @@ function focus (index: number) {
 
 function handleInput (index: number, event: InputEvent) {
   const input = event.target as HTMLInputElement
-  // const value = input.value.replace(/[^0-9]/g, '')
-  const value = event.data?.replace(/[^0-9]/g, '') || input.value.replace(/[^0-9]/g, '')
+  const inputValue = input.value || ''
 
-  handleOtp(value, index)
+  const value = event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
+
+  handleOtp(value, index, inputValue.match(/[^0-9]/g) === null)
 }
 
-function handleOtp (value: string, index: number) {
+function handleOtp (value: string, index: number, goNext: boolean = true) {
   const newOtp = [...otp.value]
   let newFocusedInput: number | null = focusedInput.value
 
@@ -57,10 +58,11 @@ function handleOtp (value: string, index: number) {
       }
     })
     const filledCount = newOtp.filter(Boolean).length
+
     newFocusedInput =
-      filledCount === length.value || index + 1 < length.value
-        ? index + 1
-        : filledCount
+        filledCount === length.value || index + 1 < length.value
+          ? index + 1
+          : filledCount
   } else {
     if (value.length === 1) {
       newOtp[index] = value
@@ -75,7 +77,10 @@ function handleOtp (value: string, index: number) {
     }
   }
 
-  focusedInput.value = newFocusedInput
+  if (goNext === true) {
+    focusedInput.value = newFocusedInput
+  }
+
   otp.value = newOtp
   emit('update:modelValue', otp.value.join(''))
   emit('change', otp.value.join(''))
@@ -92,7 +97,9 @@ watch(
     } else if (otp.value.join('') !== newModelValue) {
       const newOtp = newModelValue.split('').slice(0, length.value)
 
-      newOtp.forEach(handleOtp)
+      newOtp.forEach((value, index) => {
+        handleOtp(value, index)
+      })
     }
   }
 )
