@@ -93,6 +93,7 @@ watch(
   () => modelValue.value,
   (newModelValue) => {
     if (newModelValue === '') {
+      focusedInput.value = 0
       otp.value = [...Array(length.value)].fill('')
     } else if (otp.value.join('') !== newModelValue) {
       const newOtp = newModelValue.split('').slice(0, length.value)
