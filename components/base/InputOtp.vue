@@ -3,6 +3,7 @@ interface Props {
   length?: number;
   modelValue: string;
   error?: boolean;
+  disabled?:boolean;
   success?: boolean;
   errorMessage?: string;
   successMessage?: string;
@@ -11,6 +12,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   length: 6,
   modelValue: '',
+  disabled: false,
   error: false,
   success: false,
   errorMessage: 'Invalid OTP',
@@ -158,6 +160,7 @@ watch(
         :key="index"
         ref="inputRefList"
         v-model="otp[index]"
+        :disabled="disabled"
         type="text"
         inputmode="numeric"
         class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
