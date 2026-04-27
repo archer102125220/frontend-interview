@@ -3,12 +3,18 @@ interface Props {
   length?: number;
   modelValue: string;
   error?: boolean;
+  success?: boolean;
+  errorMessage?: string;
+  successMessage?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   length: 6,
   modelValue: '',
-  error: false
+  error: false,
+  success: false,
+  errorMessage: 'Invalid OTP',
+  successMessage: 'OTP Verified Successfully'
 })
 const emit = defineEmits(['update:modelValue', 'change', 'complete'])
 
@@ -124,21 +130,37 @@ watch(
 </script>
 
 <template>
-  <div class="flex gap-2">
-    <input
-      v-for="(_, index) in otp"
-      :key="index"
-      ref="inputRefs"
-      v-model="otp[index]"
-      type="text"
-      inputmode="numeric"
-      class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
-      :class="{
-        'border-blue-500': focusedInput === index,
-        'border-red-500': error
-      }"
-      @focus="focus(index)"
-      @input="handleInput(index, $event)"
+  <div class="text-center">
+    <div class="flex gap-2">
+      <input
+        v-for="(_, index) in otp"
+        :key="index"
+        ref="inputRefs"
+        v-model="otp[index]"
+        type="text"
+        inputmode="numeric"
+        class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
+        :class="{
+          'border-blue-500': focusedInput === index,
+          'border-red-500': error
+        }"
+        @focus="focus(index)"
+        @input="handleInput(index, $event)"
+      >
+    </div>
+
+    <p
+      v-if="error"
+      class="mt-2 text-sm text-red-600"
     >
+      {{ errorMessage }}
+    </p>
+
+    <p
+      v-if="success"
+      class="mt-2 text-sm text-green-600"
+    >
+      {{ successMessage }}
+    </p>
   </div>
 </template>

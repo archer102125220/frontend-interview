@@ -38,6 +38,9 @@ async function handleVerifyOtp () {
       v-model="otp"
       :length="6"
       :error="isError"
+      :success="isSuccess"
+      error-message="錯誤的驗證碼"
+      success-message="驗證成功"
       @complete="isComplete = true"
       @change="handleChange"
     />
@@ -49,19 +52,5 @@ async function handleVerifyOtp () {
     >
       Verify OTP
     </button>
-
-    <p
-      v-if="isError"
-      class="mt-2 text-sm text-red-600"
-    >
-      Invalid OTP
-    </p>
-
-    <p
-      v-if="isSuccess"
-      class="mt-2 text-sm text-green-600"
-    >
-      OTP Verified Successfully
-    </p>
   </div>
 </template>
