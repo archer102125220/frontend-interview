@@ -40,7 +40,6 @@ function focus (index: number) {
 function handleInput (index: number, event: InputEvent) {
   const input = event.target as HTMLInputElement
   const inputValue = input.value || ''
-
   const value = event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
 
   handleOtp(value, index, inputValue.match(/[^0-9]/g) === null)
@@ -68,6 +67,8 @@ function handleOtp (value: string, index: number, goNext: boolean = true) {
       newOtp[index] = value
     } else if (value !== '') {
       newOtp[index] = value.charAt(value.length - 1)
+    } else {
+      newOtp[index] = ''
     }
 
     if (newOtp[index] === '') {
