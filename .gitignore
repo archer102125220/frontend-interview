@@ -10,4 +10,5 @@ dist
 .husky
 .DS_Store
 
-
+# environment
+.env
