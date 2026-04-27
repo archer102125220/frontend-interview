@@ -40,11 +40,16 @@ function focus (index: number) {
 function handleInput (index: number, event: InputEvent) {
   const input = event.target as HTMLInputElement
   const inputValue = input.value || ''
-  const value = event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
+  const value =
+    event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
 
   handleOtp(value, index, inputValue.match(/[^0-9]/g) === null)
 
-  if (event.data?.match(/[^0-9]/g) !== null || inputValue.match(/[^0-9]/g) !== null) {
+  if (
+    event.data !== null &&
+    (event.data.match(/[^0-9]/g) !== null ||
+      inputValue.match(/[^0-9]/g) !== null)
+  ) {
     console.log('error')
     emit('error', 'Invalid OTP')
   }
@@ -64,9 +69,9 @@ function handleOtp (value: string, index: number, goNext: boolean = true) {
     const filledCount = newOtp.filter(Boolean).length
 
     newFocusedInput =
-        filledCount === length.value || index + 1 < length.value
-          ? index + 1
-          : filledCount
+      filledCount === length.value || index + 1 < length.value
+        ? index + 1
+        : filledCount
   } else {
     if (value.length === 1) {
       newOtp[index] = value
@@ -130,7 +135,9 @@ watch(
     const safeNewFousedInput = focusedInput.value ?? 0
 
     if (safeNewFousedInput >= length.value) {
-      if (inputRefList.value[safeNewFousedInput - 1] instanceof HTMLInputElement) {
+      if (
+        inputRefList.value[safeNewFousedInput - 1] instanceof HTMLInputElement
+      ) {
         inputRefList.value[safeNewFousedInput - 1].blur()
       }
       focusedInput.value = null
@@ -156,7 +163,7 @@ watch(
         class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
         :class="{
           'border-blue-500': focusedInput === index,
-          'border-red-500': error
+          'border-red-500': error,
         }"
         @focus="focus(index)"
         @input="handleInput(index, $event)"
