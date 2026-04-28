@@ -7,7 +7,7 @@ export function useHttpExamples () {
       request.post<{verified: boolean}>('/examples/verify-otp-simple', {
         body: { otp }
       }).then((response) => {
-        if (response.success === false) {
+        if (response.data?.verified === false) {
           throw new Error('Invalid OTP')
         }
         return response.data
