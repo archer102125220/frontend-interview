@@ -7,6 +7,7 @@ interface Props {
   success?: boolean;
   errorMessage?: string;
   successMessage?: string;
+  column?:number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -16,11 +17,13 @@ const props = withDefaults(defineProps<Props>(), {
   error: false,
   success: false,
   errorMessage: 'Invalid OTP',
-  successMessage: 'OTP Verified Successfully'
+  successMessage: 'OTP Verified Successfully',
+  column: 6
 })
 const emit = defineEmits(['update:modelValue', 'change', 'complete', 'error'])
 
-const { length, modelValue } = toRefs(props)
+const { length, modelValue, column } = toRefs(props)
+
 const otp = ref<string[]>(
   modelValue.value
     .split('')
@@ -35,6 +38,15 @@ const otp = ref<string[]>(
 const focusedInput = ref<number | null>(0)
 const inputRefList = ref<HTMLInputElement[]>([])
 
+// Split otp array into rows based on `column` prop
+const rows = computed(() => {
+  const result: string[][] = []
+  for (let i = 0; i < otp.value.length; i += column.value) {
+    result.push(otp.value.slice(i, i + column.value))
+  }
+  return result
+})
+
 function focus (index: number) {
   focusedInput.value = index
 }
@@ -45,7 +57,7 @@ function handleInput (index: number, event: InputEvent) {
   const value =
     event.data?.replace(/[^0-9]/g, '') || inputValue.replace(/[^0-9]/g, '')
 
-  handleOtp(value, index, inputValue.match(/[^0-9]/g) === null)
+  handleOtp(value, index, inputValue.match(/[^0-9]/g) === null && event.data !== null)
 
   if (
     event.data !== null &&
@@ -57,14 +69,24 @@ function handleInput (index: number, event: InputEvent) {
   }
 }
 
+function handleKeyDown (index: number, event: KeyboardEvent) {
+  if (event.key === 'Backspace') {
+    handleOtp('', index, false)
+  }
+}
+
 function handleOtp (value: string, index: number, goNext: boolean = true) {
   const newOtp = [...otp.value]
   let newFocusedInput: number | null = focusedInput.value
 
-  if (newOtp[index + 1] !== undefined && value.length >= 1) {
-    const digits = value.split('').slice(0, length.value - index)
+  const emptyIndex = newOtp.findIndex(value => value === '')
+
+  if ((newOtp[index + 1] !== undefined && value.length >= 1)) {
+    const digits = value.split('').slice(0, emptyIndex <= index ? value.length : (length.value - index))
     digits.forEach((digit, idx) => {
-      if (index + idx < length.value) {
+      if (emptyIndex <= index) {
+        newOtp[idx] = digit
+      } else if (index + idx < length.value) {
         newOtp[index + idx] = digit
       }
     })
@@ -154,23 +176,30 @@ watch(
 
 <template>
   <div class="text-center">
-    <div class="flex gap-2">
-      <input
-        v-for="(_, index) in otp"
-        :key="index"
-        ref="inputRefList"
-        v-model="otp[index]"
-        :disabled="disabled"
-        type="text"
-        inputmode="numeric"
-        class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
-        :class="{
-          'border-blue-500': focusedInput === index,
-          'border-red-500': error,
-        }"
-        @focus="focus(index)"
-        @input="handleInput(index, $event)"
+    <div class="flex flex-col gap-2">
+      <div
+        v-for="(row, rowIndex) in rows"
+        :key="rowIndex"
+        class="flex gap-2"
       >
+        <input
+          v-for="(_, colIndex) in row"
+          :key="colIndex"
+          ref="inputRefList"
+          v-model="otp[rowIndex * column + colIndex]"
+          :disabled="disabled"
+          type="text"
+          inputmode="numeric"
+          class="size-12 rounded-lg border-2 border-gray-300 text-center text-2xl font-bold focus:border-blue-500 focus:outline-none"
+          :class="{
+            'border-blue-500': focusedInput === rowIndex * column + colIndex,
+            'border-red-500': error,
+          }"
+          @focus="focus(rowIndex * column + colIndex)"
+          @input="handleInput(rowIndex * column + colIndex, $event)"
+          @keydown="handleKeyDown(rowIndex * column + colIndex, $event)"
+        >
+      </div>
     </div>
 
     <p

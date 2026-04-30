@@ -23,7 +23,7 @@ function handleOtpLengthChange (event: InputEvent) {
 
   let newOtpLength: string | number = eventData || inputValue
 
-  if (Number.isNaN(newOtpLength)) {
+  if (Number.isNaN(Number(newOtpLength))) {
     newOtpLength = newOtpLength.replace(/[^0-9]/g, '')
   }
 
@@ -39,6 +39,8 @@ function handleOtpLengthChange (event: InputEvent) {
 function handleChange () {
   isError.value = false
   isSuccess.value = false
+
+  isComplete.value = otp.value.length === otpLength.value
 }
 
 async function handleVerifyOtp () {
@@ -88,7 +90,6 @@ async function handleVerifyOtp () {
       :disabled="disabled"
       error-message="錯誤的驗證碼"
       success-message="驗證成功"
-      @complete="isComplete = true"
       @change="handleChange"
       @error="isError = true"
     />
